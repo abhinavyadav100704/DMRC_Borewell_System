@@ -1,10 +1,16 @@
 package com.dmrc.borewell.service.impl;
 
+import com.dmrc.borewell.audit.AuditAction;
+import com.dmrc.borewell.audit.AuditService;
+import com.dmrc.borewell.audit.EntityType;
 import com.dmrc.borewell.entity.Station;
 import com.dmrc.borewell.exception.BadRequestException;
+import com.dmrc.borewell.exception.ResourceNotFoundException;
 import com.dmrc.borewell.repository.BorewellRepository;
 import com.dmrc.borewell.repository.StationRepository;
 import com.dmrc.borewell.service.StationService;
+import com.dmrc.borewell.notification.NotificationService;
+import com.dmrc.borewell.notification.NotificationSeverity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,60 +26,99 @@ public class StationServiceImpl implements StationService {
     @Autowired
     private StationRepository stationRepository;
 
-    @Override
-    public Station createStation(Station station) {
-        return stationRepository.save(station);
-    }
+    @Autowired
+    private AuditService auditService;
 
-    @Override
-    public List<Station> getAllStations() {
-        return stationRepository.findAll();
-    }
+    @Autowired
+    private NotificationService notificationService;
 
-    @Override
-    public Optional<Station> getStationById(Integer id) {
-        return stationRepository.findById(id);
-    }
-
-    @Override
-    public Station updateStation(Integer id, Station stationDetails) {
-        return stationRepository.findById(id)
-                .map(station -> {
-                    station.setStationName(stationDetails.getStationName());
-                    station.setLineId(stationDetails.getLineId());
-                    station.setLocation(stationDetails.getLocation());
-                    station.setPlatformCount(stationDetails.getPlatformCount());
-                    station.setOpeningDate(stationDetails.getOpeningDate());
-                    station.setStationType(stationDetails.getStationType());
-                    station.setLastMaintenanceDate(stationDetails.getLastMaintenanceDate());
-                    station.setMaintenanceNotes(stationDetails.getMaintenanceNotes());
-                    return stationRepository.save(station);
-                })
-                .orElse(null);
-    }
-
-    @Override
-    public void deleteStation(Integer id) {
-        stationRepository.deleteById(id);
-    }
-
+    // CREATE / SAVE
     @Override
     public Station save(Station station) {
-        return stationRepository.save(station);
+        Station saved = stationRepository.save(station);
+
+        // ✅ Audit log for create
+        auditService.logAction(
+                null,
+                AuditAction.CREATE,
+                EntityType.STATION,
+                saved.getStationId(),
+                "Created station: " + saved.getStationName(),
+                null
+        );
+
+        // ✅ Notification for creation
+        notificationService.createNotification(
+                "Station Created",
+                "Station \"" + saved.getStationName() + "\" has been created.",
+                NotificationSeverity.INFO,
+                null
+        );
+
+        return saved;
     }
 
+    // READ ALL
     @Override
     public List<Station> findAll() {
         return stationRepository.findAll();
     }
 
+    // READ BY ID
     @Override
     public Optional<Station> findById(Integer id) {
         return stationRepository.findById(id);
     }
 
+    // UPDATE
     @Override
-    public void deleteById(Integer id) {
+    public Station update(Integer id, Station stationDetails) {
+
+        Station station = stationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Station not found with id: " + id)
+                );
+
+        station.setStationName(stationDetails.getStationName());
+        station.setLineId(stationDetails.getLineId());
+        station.setLocation(stationDetails.getLocation());
+        station.setPlatformCount(stationDetails.getPlatformCount());
+        station.setOpeningDate(stationDetails.getOpeningDate());
+        station.setStationType(stationDetails.getStationType());
+        station.setLastMaintenanceDate(stationDetails.getLastMaintenanceDate());
+        station.setMaintenanceNotes(stationDetails.getMaintenanceNotes());
+
+        Station updated = stationRepository.save(station);
+
+        // ✅ Audit log for update
+        auditService.logAction(
+                null,
+                AuditAction.UPDATE,
+                EntityType.STATION,
+                updated.getStationId(),
+                "Updated station: " + updated.getStationName(),
+                null
+        );
+
+        // ✅ Notification for update
+        notificationService.createNotification(
+                "Station Updated",
+                "Station \"" + updated.getStationName() + "\" has been updated.",
+                NotificationSeverity.INFO,
+                null
+        );
+
+        return updated;
+    }
+
+    // DELETE with validation
+    @Override
+    public void delete(Integer id) {
+
+        Station station = stationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Station not found with id: " + id)
+                );
 
         boolean isUsed = borewellRepository.existsByStationStationId(id);
 
@@ -82,7 +127,30 @@ public class StationServiceImpl implements StationService {
                     "Cannot delete station. It is assigned to existing borewells."
             );
         }
-        stationRepository.deleteById(id);
 
+        stationRepository.delete(station);
+
+        // ✅ Audit log for delete
+        auditService.logAction(
+                null,
+                AuditAction.DELETE,
+                EntityType.STATION,
+                station.getStationId(),
+                "Deleted station: " + station.getStationName(),
+                null
+        );
+
+        // ✅ Notification for delete
+        notificationService.createNotification(
+                "Station Deleted",
+                "Station \"" + station.getStationName() + "\" has been deleted.",
+                NotificationSeverity.WARNING,
+                null
+        );
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        stationRepository.deleteById(id);
     }
 }

@@ -1,7 +1,10 @@
 package com.dmrc.borewell.security.auth;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class JwtResponse {
 
     private String token;
@@ -23,11 +26,4 @@ public class JwtResponse {
         this.roles = roles;
     }
 
-    public String getToken() { return token; }
-    public String getType() { return type; }
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public List<String> getRoles() { return roles; }
 }
-

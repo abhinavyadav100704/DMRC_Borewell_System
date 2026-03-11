@@ -33,32 +33,7 @@ public class BorewellController {
     @PostMapping
     public ResponseEntity<Borewell> createBorewell(@RequestBody Borewell borewell) {
 
-        if (borewell.getStation() == null) {
-            throw new BadRequestException("Station is required");
-        }
-
-        Station station = stationService.findById(
-                borewell.getStation().getStationId()
-        ).orElseThrow(() ->
-                new ResourceNotFoundException("Station not found with id: "
-                        + borewell.getStation().getStationId())
-        );
-
-        borewell.setStation(station);
-
-        if (borewell.getAuthority() != null) {
-
-            Authority authority = authorityService.findById(
-                    borewell.getAuthority().getAuthorityId()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException("Authority not found with id: "
-                            + borewell.getAuthority().getAuthorityId())
-            );
-
-            borewell.setAuthority(authority);
-        }
-
-        Borewell savedBorewell = borewellService.save(borewell);
+        Borewell savedBorewell = borewellService.create(borewell);
 
         return ResponseEntity.ok(savedBorewell);
     }
@@ -86,45 +61,9 @@ public class BorewellController {
     @PutMapping("/{id}")
     public ResponseEntity<Borewell> updateBorewell(@PathVariable Integer id,
                                                    @RequestBody Borewell borewellDetails) {
-
-        Borewell existing = borewellService.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Borewell not found with id: " + id)
-                );
-
-        existing.setBorewellNo(borewellDetails.getBorewellNo());
-        existing.setIsAvailable(borewellDetails.getIsAvailable());
-        existing.setDistanceM(borewellDetails.getDistanceM());
-        existing.setDiameter(borewellDetails.getDiameter());
-        existing.setDepth(borewellDetails.getDepth());
-        existing.setLocation(borewellDetails.getLocation());
-        existing.setApprovalDate(borewellDetails.getApprovalDate());
-
-        if (borewellDetails.getStation() != null) {
-            Station station = stationService.findById(
-                    borewellDetails.getStation().getStationId()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException("Station not found with id: "
-                            + borewellDetails.getStation().getStationId())
-            );
-
-            existing.setStation(station);
-        }
-
-        if (borewellDetails.getAuthority() != null) {
-            Authority authority = authorityService.findById(
-                    borewellDetails.getAuthority().getAuthorityId()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException("Authority not found with id: "
-                            + borewellDetails.getAuthority().getAuthorityId())
-            );
-
-            existing.setAuthority(authority);
-        }
-
-        Borewell updated = borewellService.save(existing);
-
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(
+                borewellService.update(id, borewellDetails)
+        );
     }
 
     // ✅ Only ADMIN can delete
@@ -137,7 +76,7 @@ public class BorewellController {
                         new ResourceNotFoundException("Borewell not found with id: " + id)
                 );
 
-        borewellService.deleteById(borewell.getBorewellId());
+        borewellService.delete(borewell.getBorewellId());
 
         return ResponseEntity.noContent().build();
     }

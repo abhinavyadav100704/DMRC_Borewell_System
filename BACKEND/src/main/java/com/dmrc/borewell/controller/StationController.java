@@ -21,8 +21,9 @@ public class StationController {
     // ✅ admin and user can create station
     @PostMapping
     public ResponseEntity<Station> createStation(@RequestBody Station station) {
-        Station saved = stationService.save(station);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(
+                stationService.save(station)
+        );
     }
 
     // ✅ Everyone can view all
@@ -46,26 +47,13 @@ public class StationController {
     // ✅ Only ADMIN can update
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Station> updateStation(@RequestBody Station stationDetails,
-                                                 @PathVariable Integer id) {
+    public ResponseEntity<Station> updateStation(
+            @PathVariable Integer id,
+            @RequestBody Station stationDetails) {
 
-        Station station = stationService.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Station not found with id: " + id)
-                );
-
-        station.setStationName(stationDetails.getStationName());
-        station.setLineId(stationDetails.getLineId());
-        station.setLocation(stationDetails.getLocation());
-        station.setPlatformCount(stationDetails.getPlatformCount());
-        station.setOpeningDate(stationDetails.getOpeningDate());
-        station.setStationType(stationDetails.getStationType());
-        station.setLastMaintenanceDate(stationDetails.getLastMaintenanceDate());
-        station.setMaintenanceNotes(stationDetails.getMaintenanceNotes());
-
-        Station updatedStation = stationService.save(station);
-
-        return ResponseEntity.ok(updatedStation);
+        return ResponseEntity.ok(
+                stationService.update(id, stationDetails)
+        );
     }
 
     // ✅ Only ADMIN can delete
@@ -73,12 +61,7 @@ public class StationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStation(@PathVariable Integer id) {
 
-        Station station = stationService.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Station not found with id: " + id)
-                );
-
-        stationService.deleteById(station.getStationId());
+        stationService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

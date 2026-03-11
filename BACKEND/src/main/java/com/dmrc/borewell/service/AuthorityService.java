@@ -15,5 +15,5 @@ public interface AuthorityService {
 
     Authority update(Integer id, Authority authorityDetails);
 
-    void deleteById(Integer id);
+    void delete(Integer id);
 }

@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -51,14 +50,18 @@ public class SecurityConfig {
                                                    AuthenticationProvider authProvider) throws Exception {
 
         http
-                .cors(cors -> {}) // 📌 ENABLE CORS with default settings (you can customize this if needed)
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationManager(authManager)         // 📌 USE the manager wired with your provider
-                .authenticationProvider(authProvider)        // 📌 REGISTER your provider
+                .authenticationManager(authManager)
+                .authenticationProvider(authProvider)
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/signup", "/auth/signin").permitAll()
+                        auth.requestMatchers(
+                                        "/auth/signup",
+                                        "/auth/signin",
+                                        "/ws/**"        // ✅ allow websocket handshake
+                                ).permitAll()
                                 .anyRequest().authenticated()
                 );
 
@@ -68,7 +71,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() { // 📌 CUSTOM CORS CONFIGURER to allow requests from the React frontend
+    public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
@@ -79,5 +82,4 @@ public class SecurityConfig {
             }
         };
     }
-
 }

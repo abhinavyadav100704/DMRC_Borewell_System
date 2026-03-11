@@ -21,8 +21,9 @@ public class AuthorityController {
     // ✅ user and admin can create authority
     @PostMapping
     public ResponseEntity<Authority> createAuthority(@RequestBody Authority authority) {
-        Authority savedAuthority = authorityService.save(authority);
-        return ResponseEntity.ok(savedAuthority);
+        return ResponseEntity.ok(
+                authorityService.save(authority)
+        );
     }
 
     // ✅ USER + ADMIN can view all
@@ -46,23 +47,13 @@ public class AuthorityController {
     // ✅ Only ADMIN can update
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Authority> updateAuthority(@PathVariable Integer id,
-                                                     @RequestBody Authority authorityDetails) {
+    public ResponseEntity<Authority> updateAuthority(
+            @PathVariable Integer id,
+            @RequestBody Authority authorityDetails) {
 
-        Authority existing = authorityService.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Authority not found with id: " + id)
-                );
-
-        // Update all fields
-        existing.setName(authorityDetails.getName());
-        existing.setDesignation(authorityDetails.getDesignation());
-        existing.setContactNumber(authorityDetails.getContactNumber());
-        existing.setEmail(authorityDetails.getEmail());
-
-        Authority updated = authorityService.save(existing);
-
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(
+                authorityService.update(id, authorityDetails)
+        );
     }
 
     // ✅ Only ADMIN can delete
@@ -70,12 +61,7 @@ public class AuthorityController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuthority(@PathVariable Integer id) {
 
-        Authority authority = authorityService.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Authority not found with id: " + id)
-                );
-
-        authorityService.deleteById(authority.getAuthorityId());
+        authorityService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

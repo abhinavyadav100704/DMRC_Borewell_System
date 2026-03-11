@@ -7,21 +7,18 @@ import java.util.Optional;
 
 public interface StationService {
 
-    Station createStation(Station station);
-
-    List<Station> getAllStations();
-
-    Optional<Station> getStationById(Integer id);
-
-    Station updateStation(Integer id, Station stationDetails);
-
-    void deleteStation(Integer id);
-
+    // CREATE
     Station save(Station station);
 
+    // READ
     List<Station> findAll();
-
     Optional<Station> findById(Integer id);
 
-    void deleteById(Integer id);
+    // UPDATE
+    Station update(Integer id, Station stationDetails);
+
+    // DELETE
+    void delete(Integer id);
+
+    void deleteById(Integer id); // optional but kept for consistency
 }

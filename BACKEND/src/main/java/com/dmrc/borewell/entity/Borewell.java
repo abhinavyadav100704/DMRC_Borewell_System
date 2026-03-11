@@ -50,6 +50,12 @@ public class Borewell {
     @Column(name = "depth", precision = 5, scale = 2)
     private BigDecimal depth;
 
+    @Column(name = "current_water_level")
+    private BigDecimal currentWaterLevel;
+
+    @Column(name = "threshold_level")
+    private BigDecimal thresholdLevel;
+
     @Column(name = "location")
     private String location;
 

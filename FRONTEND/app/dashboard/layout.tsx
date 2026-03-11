@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -12,7 +12,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
-import { usePathname } from "next/navigation"
+import NotificationBell from "@/components/NotificationBell"   // ✅ ADDED
 
 function getBreadcrumb(pathname: string) {
   const segments = pathname.split("/").filter(Boolean)
@@ -53,19 +53,32 @@ export default function DashboardLayout({
     <SidebarProvider className="h-screen">
       <AppSidebar />
       <SidebarInset className="flex flex-col h-screen">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-sm font-medium">
-                  {getBreadcrumb(pathname)}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        
+        {/* ✅ UPDATED HEADER */}
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4">
+          
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-sm font-medium">
+                    {getBreadcrumb(pathname)}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-4">
+            <NotificationBell />  {/* 🔔 ADDED HERE */}
+          </div>
+
         </header>
+
         <div className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </div>
