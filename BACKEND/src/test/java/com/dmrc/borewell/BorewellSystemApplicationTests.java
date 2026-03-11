@@ -116,10 +116,17 @@ class BorewellSystemApplicationTests {
 	@Test
 	void updateStation_asAdmin_shouldSucceed() throws Exception {
 		String request = """
-        {
-            "stationName": "Updated Station"
-        }
-        """;
+    {
+        "stationName": "Updated Station",
+        "lineId": 1,
+        "location": "Test Location",
+        "stationType": "ELEVATED",
+        "platformCount": 2,
+        "openingDate": "2020-01-01",
+        "lastMaintenanceDate": "2024-01-01",
+        "maintenanceNotes": "Test notes"
+    }
+    """;
 		mockMvc.perform(put("/stations/2")
 						.with(user("admin").roles("ADMIN"))
 						.contentType(MediaType.APPLICATION_JSON)
@@ -131,10 +138,17 @@ class BorewellSystemApplicationTests {
 	@Test
 	void updateStation_asUser_shouldFail() throws Exception {
 		String request = """
-        {
-            "stationName": "Updated Station"
-        }
-        """;
+    {
+        "stationName": "Updated Station",
+        "lineId": 1,
+        "location": "Test Location",
+        "stationType": "ELEVATED",
+        "platformCount": 2,
+        "openingDate": "2020-01-01",
+        "lastMaintenanceDate": "2024-01-01",
+        "maintenanceNotes": "Test notes"
+    }
+    """;
 		mockMvc.perform(put("/stations/2")
 						.with(user("testuser").roles("USER"))
 						.contentType(MediaType.APPLICATION_JSON)
