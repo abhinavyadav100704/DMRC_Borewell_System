@@ -15,9 +15,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class BorewellSystemApplicationTests {
 
 	@TestConfiguration
@@ -40,9 +42,9 @@ class BorewellSystemApplicationTests {
 	void signupUser() throws Exception {
 		String request = """
         {
-            "username": "testuser_signup",
-            "email": "signup@test.com",
-            "password": "password123",
+            "username": "newuser",
+            "email": "signup123@test.com",
+            "password": "password12345",
             "role": "user"
         }
         """;
@@ -158,14 +160,14 @@ class BorewellSystemApplicationTests {
 
 	@Test
 	void deleteBorewell_asAdmin_shouldSucceed() throws Exception {
-		mockMvc.perform(delete("/borewells/6")
+		mockMvc.perform(delete("/borewells/8")
 						.with(user("admin").roles("ADMIN")))
 				.andExpect(status().isNoContent());
 	}
 
 	@Test
 	void deleteBorewell_asUser_shouldFail() throws Exception {
-		mockMvc.perform(delete("/borewells/6")
+		mockMvc.perform(delete("/borewells/8")
 						.with(user("testuser").roles("USER")))
 				.andExpect(status().isForbidden());
 	}
