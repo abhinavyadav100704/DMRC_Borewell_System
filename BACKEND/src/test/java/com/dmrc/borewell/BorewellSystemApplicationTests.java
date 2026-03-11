@@ -11,10 +11,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,8 +40,8 @@ class BorewellSystemApplicationTests {
 	void signupUser() throws Exception {
 		String request = """
         {
-            "username": "testuser",
-            "email": "test@test.com",
+            "username": "testuser_signup",
+            "email": "signup@test.com",
             "password": "password123",
             "role": "user"
         }
@@ -55,9 +55,23 @@ class BorewellSystemApplicationTests {
 
 	@Test
 	void loginUser() throws Exception {
+		// First signup the user
+		String signup = """
+        {
+            "username": "testuser_login",
+            "email": "login@test.com",
+            "password": "password123",
+            "role": "user"
+        }
+        """;
+		mockMvc.perform(post("/auth/signup")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(signup));
+
+		// Then login
 		String request = """
         {
-            "username": "testuser",
+            "username": "testuser_login",
             "password": "password123"
         }
         """;
@@ -66,15 +80,15 @@ class BorewellSystemApplicationTests {
 						.content(request))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.token").exists())
-				.andExpect(jsonPath("$.username").value("testuser"));
+				.andExpect(jsonPath("$.username").value("testuser_login"));
 	}
 
 	// ---------------- STATION TESTS ----------------
 
 	@Test
-	@WithMockUser(roles = "USER")
 	void getAllStations() throws Exception {
-		mockMvc.perform(get("/stations"))
+		mockMvc.perform(get("/stations")
+						.with(user("testuser").roles("USER")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 	}
@@ -82,9 +96,9 @@ class BorewellSystemApplicationTests {
 	// ---------------- AUTHORITY TESTS ----------------
 
 	@Test
-	@WithMockUser(roles = "USER")
 	void getAllAuthorities() throws Exception {
-		mockMvc.perform(get("/authorities"))
+		mockMvc.perform(get("/authorities")
+						.with(user("testuser").roles("USER")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 	}
@@ -92,15 +106,14 @@ class BorewellSystemApplicationTests {
 	// ---------------- BOREWELL TESTS ----------------
 
 	@Test
-	@WithMockUser(roles = "USER")
 	void getAllBorewells() throws Exception {
-		mockMvc.perform(get("/borewells"))
+		mockMvc.perform(get("/borewells")
+						.with(user("testuser").roles("USER")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMIN")
 	void updateStation_asAdmin_shouldSucceed() throws Exception {
 		String request = """
         {
@@ -108,6 +121,7 @@ class BorewellSystemApplicationTests {
         }
         """;
 		mockMvc.perform(put("/stations/2")
+						.with(user("admin").roles("ADMIN"))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(request))
 				.andExpect(status().isOk())
@@ -115,7 +129,6 @@ class BorewellSystemApplicationTests {
 	}
 
 	@Test
-	@WithMockUser(roles = "USER")
 	void updateStation_asUser_shouldFail() throws Exception {
 		String request = """
         {
@@ -123,22 +136,23 @@ class BorewellSystemApplicationTests {
         }
         """;
 		mockMvc.perform(put("/stations/2")
+						.with(user("testuser").roles("USER"))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(request))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMIN")
 	void deleteBorewell_asAdmin_shouldSucceed() throws Exception {
-		mockMvc.perform(delete("/borewells/6"))
+		mockMvc.perform(delete("/borewells/6")
+						.with(user("admin").roles("ADMIN")))
 				.andExpect(status().isNoContent());
 	}
 
 	@Test
-	@WithMockUser(roles = "USER")
 	void deleteBorewell_asUser_shouldFail() throws Exception {
-		mockMvc.perform(delete("/borewells/6"))
+		mockMvc.perform(delete("/borewells/6")
+						.with(user("testuser").roles("USER")))
 				.andExpect(status().isForbidden());
 	}
 }
