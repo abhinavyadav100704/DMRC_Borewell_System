@@ -116,7 +116,7 @@ class BorewellSystemApplicationTests {
     }
     """;
 
-		mockMvc.perform(put("/stations/1")
+		mockMvc.perform(put("/stations/2")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(request))
 				.andExpect(status().isOk())
@@ -133,7 +133,7 @@ class BorewellSystemApplicationTests {
     }
     """;
 
-		mockMvc.perform(put("/stations/1")
+		mockMvc.perform(put("/stations/2")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(request))
 				.andExpect(status().isForbidden());
@@ -143,7 +143,7 @@ class BorewellSystemApplicationTests {
 	@WithMockUser(roles = "ADMIN")
 	void deleteBorewell_asAdmin_shouldSucceed() throws Exception {
 
-		mockMvc.perform(delete("/borewells/1"))
+		mockMvc.perform(delete("/borewells/6"))
 				.andExpect(status().isNoContent());
 	}
 
@@ -151,7 +151,7 @@ class BorewellSystemApplicationTests {
 	@WithMockUser(roles = "USER")
 	void deleteBorewell_asUser_shouldFail() throws Exception {
 
-		mockMvc.perform(delete("/borewells/1"))
+		mockMvc.perform(delete("/borewells/6"))
 				.andExpect(status().isForbidden());
 	}
 
