@@ -181,7 +181,7 @@ public class SeleniumTest {
 
         // Open dialog via "+ Add Station" header button
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[contains(text(),'Add Station')]"))).click();
+                By.cssSelector("[data-testid='add-station-btn']"))).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//h2[contains(text(),'Add Station')]")));

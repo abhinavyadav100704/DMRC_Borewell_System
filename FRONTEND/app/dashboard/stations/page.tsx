@@ -170,7 +170,7 @@ export default function StationsPage() {
             Manage DMRC metro stations and their borewell assignments
           </p>
         </div>
-        <Button onClick={openAdd} className="gap-2">
+        <Button onClick={openAdd} data-testid="add-station-btn" className="gap-2">
           <Plus className="size-4" /> Add Station
         </Button>
       </div>
