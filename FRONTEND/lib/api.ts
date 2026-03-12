@@ -1,6 +1,6 @@
 // All browser requests go through the Next.js proxy to avoid CORS issues.
 // The proxy forwards to BACKEND_URL (server-side env var, default http://localhost:8080/api).
-const API_BASE_URL = "http://localhost:8080"
+const API_BASE_URL = "http://localhost:8081"
 
 async function apiFetch<T>(
   endpoint: string,
