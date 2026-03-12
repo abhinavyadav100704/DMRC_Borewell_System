@@ -130,7 +130,7 @@ public class SeleniumTest {
 
         // Select the "User" radio button
         WebElement userRadio = driver.findElement(
-                By.xpath("//input[@type='radio' and @value='user']"));
+                By.xpath("//input[@type='radio' and @value='admin']"));
         if (!userRadio.isSelected()) userRadio.click();
 
         // Submit
@@ -194,8 +194,7 @@ public class SeleniumTest {
         clearAndType(By.id("stationType"),   "Elevated");
 
         // Submit inside the dialog footer
-        wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[@role='dialog']//button[contains(text(),'Add Station')]"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[contains(text(),'Add Station')])[last()]"))).click();
 
         // Dialog should close
         wait.until(ExpectedConditions.invisibilityOfElementLocated(
