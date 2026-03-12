@@ -340,6 +340,7 @@ export default function StationsPage() {
             </Button>
             <Button
               onClick={handleSave}
+              data-testid="submit-station-btn"
               disabled={!formData.stationName || !formData.location}
             >
               {editingStation ? "Save Changes" : "Add Station"}

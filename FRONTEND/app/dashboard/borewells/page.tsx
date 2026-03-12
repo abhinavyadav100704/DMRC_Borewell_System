@@ -209,7 +209,7 @@ const filtered = useMemo(() => {
             Monitor and manage borewells across all stations
           </p>
         </div>
-        <Button onClick={openAdd} className="gap-2">
+        <Button onClick={openAdd} data-testid="add-borewell-btn" className="gap-2">
           <Plus className="size-4" /> Add Borewell
         </Button>
       </div>
@@ -365,7 +365,7 @@ const filtered = useMemo(() => {
             <div className="flex flex-col gap-2">
               <Label htmlFor="station">Station</Label>
               <Select value={formData.stationId.toString()} onValueChange={(v) => setFormData({ ...formData, stationId: v === "" ? "" : Number(v) })}>
-                <SelectTrigger><SelectValue placeholder="Select a station" /></SelectTrigger>
+                <SelectTrigger data-testid="station-select"><SelectValue placeholder="Select a station" /></SelectTrigger>
                 <SelectContent>
                   {stations.map((s) => (
                     <SelectItem key={s.stationId} value={s.stationId.toString()}>{s.stationName}</SelectItem>
@@ -400,6 +400,7 @@ const filtered = useMemo(() => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button
               onClick={handleSave}
+              data-testid="submit-borewell-btn"
               disabled={!formData.borewellNo || !formData.depth || !formData.stationId}
             >
               {editingBorewell ? "Save Changes" : "Add Borewell"}

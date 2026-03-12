@@ -194,7 +194,7 @@ public class SeleniumTest {
         clearAndType(By.id("stationType"),   "Elevated");
 
         // Submit inside the dialog footer
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[contains(text(),'Add Station')])[last()]"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("[data-testid='submit-station-btn']"))).click();
 
         // Dialog should close
         wait.until(ExpectedConditions.invisibilityOfElementLocated(
@@ -214,7 +214,7 @@ public class SeleniumTest {
 
         // Open dialog
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[contains(text(),'Add Borewell')]"))).click();
+                By.cssSelector("[data-testid='add-borewell-btn']"))).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//h2[contains(text(),'Add Borewell')]")));
@@ -226,13 +226,13 @@ public class SeleniumTest {
         // Station is a shadcn <Select> (Radix UI), NOT a native <select>.
         // Must click the trigger button first, then click an option item.
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[@role='combobox'][.//span[contains(text(),'station')]]"))).click();
+                By.cssSelector("[data-testid='station-select']"))).click();
         wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("(//div[@role='option'])[1]"))).click();
 
         // Submit inside dialog
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[@role='dialog']//button[contains(text(),'Add Borewell')]"))).click();
+                By.cssSelector("[data-testid='submit-borewell-btn']"))).click();
 
         // Dialog should close
         wait.until(ExpectedConditions.invisibilityOfElementLocated(
