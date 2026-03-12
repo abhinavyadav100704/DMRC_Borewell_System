@@ -200,9 +200,11 @@ public class SeleniumTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(
                 By.xpath("//h2[contains(text(),'Add Station')]")));
 
-        // Verify new row is in the table
-        WebElement table = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.tagName("table")));
+        // Wait until the station name actually appears in the table
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//td[contains(text(),'" + STATION_NAME + "')]")));
+
+        WebElement table = driver.findElement(By.tagName("table"));
         Assertions.assertTrue(table.getText().contains(STATION_NAME),
                 "New station should appear in the table");
     }
