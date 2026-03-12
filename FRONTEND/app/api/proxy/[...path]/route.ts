@@ -1,41 +1,27 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const BACKEND_URL = process.env.BACKEND_URL!
+const BACKEND_URL = process.env.BACKEND_URL
+if (!BACKEND_URL) {
+  throw new Error("BACKEND_URL is not defined in environment variables")
+}
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  return proxyRequest(request, await params)
+}
+export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  return proxyRequest(request, await params)
+}
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  return proxyRequest(request, await params)
+}
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return proxyRequest(request, await params)
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
-  return proxyRequest(request, await params)
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
-  return proxyRequest(request, await params)
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
-  return proxyRequest(request, await params)
-}
-
-async function proxyRequest(
-  request: NextRequest,
-  params: { path: string[] }
-) {
+async function proxyRequest(request: NextRequest, params: { path: string[] }) {
   const path = params.path.join("/")
-  const targetUrl = `${BACKEND_URL}/${path}`
+  const searchParams = request.nextUrl.searchParams.toString()
+  const targetUrl = `${BACKEND_URL}/${path}${searchParams ? `?${searchParams}` : ""}`
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -43,9 +29,7 @@ async function proxyRequest(
   }
 
   const authHeader = request.headers.get("Authorization")
-  if (authHeader) {
-    headers["Authorization"] = authHeader
-  }
+  if (authHeader) headers["Authorization"] = authHeader
 
   let body: string | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -57,8 +41,7 @@ async function proxyRequest(
   }
 
   try {
-    console.log(`[v0] Proxy: ${request.method} ${targetUrl}`)
-    if (body) console.log(`[v0] Proxy body: ${body}`)
+    console.log(`[proxy] ${request.method} ${targetUrl}`)
 
     const response = await fetch(targetUrl, {
       method: request.method,
@@ -66,22 +49,16 @@ async function proxyRequest(
       body,
     })
 
-    console.log(`[v0] Proxy response status: ${response.status}`)
-
     const responseText = await response.text()
-    console.log(`[v0] Proxy response body: ${responseText}`)
+    const contentType = response.headers.get("content-type") ?? ""
 
-    const contentType = response.headers.get("content-type") || ""
+    console.log(`[proxy] ${response.status} — ${responseText.slice(0, 200)}`)
 
     if (contentType.includes("application/json") && responseText) {
       try {
-        const data = JSON.parse(responseText)
-        return NextResponse.json(data, { status: response.status })
+        return NextResponse.json(JSON.parse(responseText), { status: response.status })
       } catch {
-        return new NextResponse(responseText, {
-          status: response.status,
-          headers: { "Content-Type": contentType },
-        })
+        // fall through
       }
     }
 
@@ -90,7 +67,7 @@ async function proxyRequest(
       headers: { "Content-Type": contentType || "text/plain" },
     })
   } catch (err) {
-    console.error(`[v0] Proxy error for ${targetUrl}:`, err)
+    console.error(`[proxy] Error →`, err)
     return NextResponse.json(
       { message: `Cannot connect to backend at ${BACKEND_URL}. Is your Spring Boot server running?` },
       { status: 502 }
